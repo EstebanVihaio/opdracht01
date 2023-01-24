@@ -21,18 +21,30 @@ try {
 $sql = "DELETE FROM Persoon
         WHERE Id = :Id;";
 
-// We prepareren de query zodat we de waarde van Id kunnen koppelen aan placeholder :Id
-$statement = $pdo->prepare($sql);
+try {
+    // We prepareren de query zodat we de waarde van Id kunnen koppelen aan placeholder :Id
+    $statement = $pdo->prepare($sql);
 
-// Bind de value aan de placeholder
-$statement->bindValue(':Id', $_GET['Id'], PDO::PARAM_INT);
+    // Bind de value aan de placeholder
+    $statement->bindValue(':Id', $_GET['Id'], PDO::PARAM_INT);
 
-$result = $statement->execute();
-
-if ($result) {
+    // $result = $statement->execute();
+    $statement->execute();
+    // var_dump($statement->execute());
+    // if ($result) {
+    //     echo "Het record is verwijderd";
+    //     header('Refresh:2.5; url=read.php');
+    // } else {
+    //     echo "Het record is niet verwijderd";
+    // }
     echo "Het record is verwijderd";
     header('Refresh:2.5; url=read.php');
-} else {
+
+} catch(PDOException $e) {
+    echo $e->getMessage();
+    header('Refresh:2.5; url=read.php');
     echo "Het record is niet verwijderd";
 }
+
+
 

@@ -17,23 +17,49 @@ try {
     $e->getMessage();
 }
 
-// Maak een select-query
-$sql = "SELECT * FROM Persoon 
-        WHERE Id = :Id";
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    try {
+        // var_dump($_POST);
+        // var_dump($pdo);
+        // echo "We zijn binnen";
+        $sql = "UPDATE Persoon
+                SET    Voornaam = :Firstname,
+                       Tussenvoegsel = :Infix,
+                       Achternaam = :Lastname
+                WHERE  Id = :Id";
 
-// Voorbereiden van de query
-$statement = $pdo->prepare($sql);
+        $statement = $pdo->prepare($sql);
+        $statement->bindValue(':Id', $_POST['Id'], PDO::PARAM_INT);
+        $statement->bindValue(':Firstname', $_POST['firstname'], PDO::PARAM_STR);
+        $statement->bindValue(':Infix', $_POST['infix'], PDO::PARAM_STR);
+        $statement->bindValue(':Lastname', $_POST['lastname'], PDO::PARAM_STR);
+        $statement->execute();
 
-$statement->bindValue(':Id', $_GET['Id'], PDO::PARAM_INT);
+        header("Refresh:3; read.php");
+        echo "Het updaten is gelukt";
+        exit();
 
-$statement->execute();
+    } catch(PDOException $e) {
+        header("Refresh:3; read.php");
+        echo "Het updaten is niet gelukt";
+    }
+    
+} else {
+    // Maak een select-query
+    $sql = "SELECT * FROM Persoon 
+    WHERE Id = :Id";
 
-$result = $statement->fetch(PDO::FETCH_OBJ);
+    // Voorbereiden van de query
+    $statement = $pdo->prepare($sql);
 
-var_dump($result);
+    $statement->bindValue(':Id', $_GET['Id'], PDO::PARAM_INT);
 
+    $statement->execute();
 
+    $result = $statement->fetch(PDO::FETCH_OBJ);
 
+    // var_dump($result);
+}
 ?>
 
 <!DOCTYPE html>
@@ -49,15 +75,20 @@ var_dump($result);
 <body>
     <h1>PDO CRUD</h1>
 
-    <form action="create.php" method="post">
+    <form action="update.php" method="post">
         <label for="firstname">Voornaam:</label><br>
-        <input type="text" name="firstname" id="firstname" value="<?php echo $result->Voornaam; ?>"><br>
+        <input type="text" name="firstname" id="firstname" value="<?php echo $result->Voornaam; ?>">
+        <br><br>
 
         <label for="infix">Tussenvoegsel:</label><br>
-        <input type="text" name="infix" id="infix"><br>
+        <input type="text" name="infix" id="infix" value="<?php echo $result->Tussenvoegsel; ?>">
+        <br><br>
 
         <label for="lastname">Achternaam:</label><br>
-        <input type="text" name="lastname" id="lastname"><br>
+        <input type="text" name="lastname" id="lastname" value="<?php echo $result->Achternaam; ?>">
+        <br><br>
+
+        <input type="hidden" name="Id" value=<?= $result->Id; ?>>
 
         <input type="submit" value="Verstuur">
     </form>
