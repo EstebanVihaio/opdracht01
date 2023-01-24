@@ -1,4 +1,5 @@
 <?php
+// var_dump($_POST);exit();
 include('config.php');
 
 // DSN staat voor data sourcename.
@@ -19,13 +20,18 @@ $sql = "INSERT INTO Persoon (Id
                             ,Achternaam)
         VALUES              (NULL
                             ,:firstname
-                            ,'{$_POST['infix']}'
-                            ,'{$_POST['lastname']}');";
+                            ,:infix
+                            ,:lastname);";
 // Maak de query gereed met de prepare-method van het $pdo-object
 $statement = $pdo->prepare($sql);
 $statement->bindValue(':firstname', $_POST['firstname'], PDO::PARAM_STR);
+$statement->bindValue(':infix', $_POST['infix'], PDO::PARAM_STR);
+$statement->bindValue(':lastname', $_POST['lastname'], PDO::PARAM_STR);
 // Vuur de query af op de database...
 $statement->execute();
+
+// Hiermee sturen we automatisch door naar de pagina read.php
+header('Location: read.php');
 
 
 
